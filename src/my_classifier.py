@@ -18,7 +18,11 @@ __author__ = 'lch02'
 def create_classifier(featx):
     pos_words = list(itertools.chain(*(config.pos_data[300000:])))
     neg_words = list(itertools.chain(*(config.neg_data[300000:])))
-    print len(pos_words),'------',len(neg_words)
+
+    pos_words = config.pos_data[300000:]
+    neg_words = config.neg_data[300000:]
+
+    print len(pos_words), '------', len(neg_words)
     pos_features = [(featx(w_lst), 'pos') for w_lst in pos_words]
     neg_features = [(featx(w_lst), 'neg') for w_lst in neg_words]
 
@@ -34,6 +38,7 @@ def create_classifier(featx):
     train_set = r_pos_cut.extend(r_neg_cut)
     test_set = t_pos_cut.extend(t_neg_cut)
 
+    print pos_features
     classifier = nltk.NaiveBayesClassifier.train(train_set)
     print nltk.classify.accuracy(classifier, test_set)
     classifier_pkl = os.path.join(config.test_path, 'my_classifier.pkl')  # 消极语料

@@ -40,6 +40,7 @@ def word_scores():
         pos_score = BigramAssocMeasures.chi_sq(con_word_tf['pos'][word], (freq, pos_word_count), total_word_count)   # 计算积极词的卡方统计量
         neg_score = BigramAssocMeasures.chi_sq(con_word_tf['neg'][word], (freq, neg_word_count), total_word_count)   # 计算消极词的卡方统计量
         word_scores_dict[word] = pos_score + neg_score
+    print pos_score, '----',
     return word_scores_dict
 
 """
@@ -92,12 +93,13 @@ def get_best_words(scores_dict, threshold=10000):
 选择1：所有词作为特征
 """
 def best_words_features(words):
+    # print config.best_words
     return dict([(word, True) for word in words if word in config.best_words])
 
 """
 选择2：把所有词和双词搭配一起作为特征
 """
-def best_bigram_words_features(words, score_fn=BigramAssocMeasures.chi_sq, n=200):
+def best_bigram_words_features(words, score_fn=BigramAssocMeasures.chi_sq, n=1500):
     bigram_finder = BigramCollocationFinder.from_words(words)
     bigrams = bigram_finder.nbest(score_fn, n)
     d = dict([(bigram, True) for bigram in bigrams])

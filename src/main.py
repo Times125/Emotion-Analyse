@@ -15,5 +15,7 @@ __author__ = 'lch02'
 if __name__ == '__main__':
     # export_data()
     scores_dict = word_scores()
-    config.best_word = get_best_words(scores_dict, 10000)
-    create_classifier(best_bigram_words_features)
+    config.best_words = get_best_words(scores_dict, 100)
+    print config.best_words
+    # create_classifier(best_bigram_words_features)
+    create_classifier(best_words_features)

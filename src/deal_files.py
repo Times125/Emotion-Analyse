@@ -36,10 +36,8 @@ def export_data():
         else:
             continue
         if label == 0 and len(content) != 0:
-            print label
             neg.append(content)
         elif label == 1 and len(content) != 0:
-            print label
             pos.append(content)
     neg_file = os.path.join(test_path, 'neg_review.pkl')    # 消极语料
     pos_file = os.path.join(test_path, 'pos_review.pkl')    # 积极语料
