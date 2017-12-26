@@ -7,15 +7,13 @@
 @Description: 
 """
 from deal_files import export_data
-from deal_files import bag_of_words
+from deal_features import *
+from my_classifier import *
+
 __author__ = 'lch02'
 
 if __name__ == '__main__':
     # export_data()
-    print  bag_of_words(['hello','i','love','u'])
-    """
-    import re
-    sentence = '#le @lee i love u @ ooooo #le # leeee'
-    sentence = re.sub(r'@\s*[\w]+ | ?#[\w]+', '', sentence)
-    print sentence
-    """
+    scores_dict = word_scores()
+    config.best_word = get_best_words(scores_dict, 10000)
+    create_classifier(best_bigram_words_features)

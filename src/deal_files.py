@@ -8,10 +8,8 @@
 """
 import os
 import re
-import nltk
 import pickle
-from nltk.collocations import BigramCollocationFinder
-from nltk.metrics import BigramAssocMeasures
+
 from nltk import regexp_tokenize
 from nltk.corpus import stopwords
 from config import *
@@ -33,21 +31,26 @@ def export_data():
         content = row[1].value
         if content is not None:
             content = text_parse(content)
-            print label, ' ', content
+            if len(content) == 0:
+                continue
         else:
             continue
-        if label == 0:
-            neg.append((content, label))
-        else:
-            pos.append((content, label))
-    neg_file = os.path.join(test_path, 'neg_pickle.pkl')
-    pos_file = os.path.join(test_path, 'pos_pickle.pkl')
+        if label == 0 and len(content) != 0:
+            print label
+            neg.append(content)
+        elif label == 1 and len(content) != 0:
+            print label
+            pos.append(content)
+    neg_file = os.path.join(test_path, 'neg_review.pkl')    # 消极语料
+    pos_file = os.path.join(test_path, 'pos_review.pkl')    # 积极语料
     with open(neg_file, 'wb') as f:
         pickle.dump(neg, f)
     with open(pos_file, 'wb') as f:
         pickle.dump(pos, f)
 
-
+"""
+文本处理：取词、去停用词等
+"""
 def text_parse(input_text, language='en'):
     sentence = input_text.strip().lower()
     sentence = re.sub(r'@\s*[\w]+ | ?#[\w]+ | ?&[\w]+; | ?[^\x00-\xFF]+', '', sentence)
@@ -64,19 +67,5 @@ def text_parse(input_text, language='en'):
     elif language == 'fr':
         filter_word = [w for w in word_list if
                        w not in stopwords.words('french') and w not in special_tag]  # 去停用词和特殊标点符号
-    res = ' '.join(filter_word)
-    return res
+    return filter_word
 
-"""
-构建特征
-"""
-def bag_of_words(words):
-    return dict([(word, True) for word in words])
-
-"""
-把所有词和双词搭配一起作为特征
-"""
-def bigram_words(words, score_fn=BigramAssocMeasures.chi_sq, n=1500):
-    bigram_finder = BigramCollocationFinder.from_words(words)
-    bigrams = bigram_finder.nbest(score_fn, n)
-    return bag_of_words(words + bigrams)
