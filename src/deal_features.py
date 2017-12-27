@@ -20,8 +20,8 @@ __author__ = 'lch02'
 计算每个词的贡献(信息量)
 """
 def word_scores():
-    pos_words = list(itertools.chain(*(config.pos_data[:300000])))   # 二维数组转一维
-    neg_words = list(itertools.chain(*(config.neg_data[:300000])))
+    pos_words = list(itertools.chain(*(config.pos_data[:config.choose_threshold])))   # 二维数组转一维
+    neg_words = list(itertools.chain(*(config.neg_data[:config.choose_threshold])))
 
     word_tf = FreqDist()    # 统计所有词频
     con_word_tf = ConditionalFreqDist()     # 统计每个词的概率分布
@@ -40,7 +40,7 @@ def word_scores():
         pos_score = BigramAssocMeasures.chi_sq(con_word_tf['pos'][word], (freq, pos_word_count), total_word_count)   # 计算积极词的卡方统计量
         neg_score = BigramAssocMeasures.chi_sq(con_word_tf['neg'][word], (freq, neg_word_count), total_word_count)   # 计算消极词的卡方统计量
         word_scores_dict[word] = pos_score + neg_score
-    print pos_score, '----',
+    print pos_score, '----', neg_score
     return word_scores_dict
 
 """
@@ -59,16 +59,16 @@ def word_bigram_scores():
     pos_bigrams = pos_bigram_finder.nbest(BigramAssocMeasures.chi_sq, config.bigram_scores_threshold)
     neg_bigrams = neg_bigram_finder.nbest(BigramAssocMeasures.chi_sq, config.bigram_scores_threshold)
 
-    pos = pos_words.extend(pos_bigrams)
-    neg = neg_words.extend(neg_bigrams)
+    pos_words.extend(pos_bigrams)
+    neg_words.extend(neg_bigrams)
 
     word_tf = FreqDist()    # 统计所有词频
     con_word_tf = ConditionalFreqDist()     # 统计每个词的概率分布
 
-    for word in pos:
+    for word in pos_words:
         word_tf[word] += 1
         con_word_tf['pos'][word] += 1
-    for word in neg:
+    for word in neg_words:
         word_tf[word] += 1
         con_word_tf['neg'][word] += 1
     pos_word_count = con_word_tf['pos'].N()     # 积极词的数量
@@ -90,18 +90,32 @@ def get_best_words(scores_dict, threshold=10000):
     return best_words
 
 """  
-选择1：所有词作为特征
+选择1：最有信息量的单个词作为特征
 """
 def best_words_features(words):
     # print config.best_words
-    return dict([(word, True) for word in words if word in config.best_words])
+    lst = []
+    for word in words:
+        if word in config.best_words:
+            lst.append((word, True))
+        else:
+            lst.append((word, False))
+    return dict(lst)
+    # return dict([(word, True) for word in words if word in config.best_words])
 
 """
 选择2：把所有词和双词搭配一起作为特征
 """
 def best_bigram_words_features(words, score_fn=BigramAssocMeasures.chi_sq, n=1500):
-    bigram_finder = BigramCollocationFinder.from_words(words)
-    bigrams = bigram_finder.nbest(score_fn, n)
+    try:
+        bigram_finder = BigramCollocationFinder.from_words(words)
+        bigrams = bigram_finder.nbest(score_fn, n)
+    except ZeroDivisionError:
+        words.append('xy!z')
+        print words,"=====______"
+        bigram_finder = BigramCollocationFinder.from_words(words)
+        bigrams = bigram_finder.nbest(score_fn, n)
+        print bigrams, "===========."
     d = dict([(bigram, True) for bigram in bigrams])
     d.update(best_words_features(words))
     return d
