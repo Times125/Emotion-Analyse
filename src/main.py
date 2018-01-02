@@ -15,7 +15,6 @@ __author__ = 'lch02'
 
 
 def test_my(featx):
-
     pos_data = pickle.load(open(os.path.join(config.test_path, 'pos_reviews_mod.pkl'), 'rb'))
     neg_data = pickle.load(open(os.path.join(config.test_path, 'neg_reviews_mod.pkl'), 'rb'))
     pos_len = int(len(pos_data) * 0.5)
@@ -87,25 +86,17 @@ def deals_fun(cat):
             print 'mod neg_reviews done!'
 
 
-
-
-
-    """
-    scores_dict = word_scores()
-    config.best_words = get_best_words(scores_dict, 20000)
-    create_classifier(best_words_features)
-    """
 if __name__ == '__main__':
     # export_data()
-    #word_bigram_score_dict = word_bigram_scores()
-    #config.best_words = get_best_words(word_bigram_score_dict, 5000)
-    #create_classifier(best_bigram_words_features)
+    word_bigram_score_dict = word_bigram_scores()
+    config.best_words = get_best_words(word_bigram_score_dict, 5000)
+    create_classifier(best_bigram_words_features)
 
     my_classifier = get_model()
     pos_data = pickle.load(open(os.path.join(config.test_path, 'pos_review.pkl'), 'rb'))
     neg_data = pickle.load(open(os.path.join(config.test_path, 'neg_review.pkl'), 'rb'))
-    pos_words = pos_data[:130000]
-    neg_words = neg_data[:130000]
+    pos_words = pos_data[:]
+    neg_words = neg_data[:]
     # pos_features = [best_bigram_words_features(w_lst) for w_lst in pos_words]
     # neg_features = [best_bigram_words_features(w_lst) for w_lst in neg_words]
     pool = Pool()
@@ -114,3 +105,8 @@ if __name__ == '__main__':
     pool.close()
     pool.join()
     test_my(best_bigram_words_features)
+    """
+    scores_dict = word_scores()
+    config.best_words = get_best_words(scores_dict, 20000)
+    create_classifier(best_words_features)
+    """

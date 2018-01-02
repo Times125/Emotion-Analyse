@@ -10,8 +10,7 @@ import pickle
 import os
 __author__ = 'lch02'
 
-test_path = r'/Users/lch/Desktop/pycharm/Emotion-Analyse/test'
-f_path = r'E:\Repositories\Emotion-Analyse\features'
+test_path = r'E:\Repositories\Emotion-Analyse\Emotion-Analyse\test'
 
 # 最好的特征值
 best_words = []
