@@ -32,7 +32,6 @@ def export_data():
         if content is not None:
             content = text_parse(content)
             if len(content) == 0:
-                print "none---------"
                 continue
             elif label == 0 and len(content) != 0:
                 neg.append(content)

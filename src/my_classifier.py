@@ -20,11 +20,12 @@ __author__ = 'lch02'
 
 
 def create_classifier(featx):
-    pos_words = list(itertools.chain(*(config.pos_data[200000:])))
-    neg_words = list(itertools.chain(*(config.neg_data[200000:])))
 
-    pos_words = config.pos_data[config.choose_threshold:]
-    neg_words = config.neg_data[config.choose_threshold:]
+    pos_data = pickle.load(open(os.path.join(config.test_path, 'pos_review.pkl'), 'rb'))
+    neg_data = pickle.load(open(os.path.join(config.test_path, 'neg_review.pkl'), 'rb'))
+
+    pos_words = pos_data[config.choose_threshold:]
+    neg_words = neg_data[config.choose_threshold:]
 
     print len(pos_words), '------', len(neg_words)
     pos_features = [(featx(w_lst), 'pos') for w_lst in pos_words]
@@ -51,25 +52,27 @@ def create_classifier(featx):
     test_set = t_pos_cut
 
     # print pos_features
-    print train_set is None,'---train_set----', len(train_set)
-    print test_set is None,'-----test_set--', len(test_set)
+    print train_set is None, '---train_set----', len(train_set)
+    print test_set is None, '-----test_set--', len(test_set)
 
-    classifier = nltk.NaiveBayesClassifier.train(train_set)
-    print nltk.classify.accuracy(classifier, test_set),"pp"
+    nb_classifier = nltk.NaiveBayesClassifier.train(train_set)
+    print "NBayes accuracy is %.7f" % nltk.classify.accuracy(nb_classifier, test_set)
 
-    classifier = SklearnClassifier(BernoulliNB()).train(train_set)
-    print nltk.classify.accuracy(classifier, test_set),"dd"
+    bernoulli_classifier = SklearnClassifier(BernoulliNB()).train(train_set)
+    print "BernoulliNB accuracy is %.7f" % nltk.classify.accuracy(bernoulli_classifier, test_set)
 
-    # classifier = SklearnClassifier(SVC()).train(train_set)
-    # print nltk.classify.accuracy(classifier, test_set),"oo",classifier.classify_many(test_set)
-
-    """
     classifier_pkl = os.path.join(config.test_path, 'my_classifier.pkl')  # 消极语料
     with open(classifier_pkl, 'wb') as f:
-        pickle.dump(classifier, f)
+        pickle.dump(nb_classifier, f)
 
     best_feats_pkl = os.path.join(config.test_path, 'best_feats.pkl')  # 消极语料
     with open(best_feats_pkl, 'wb') as f:
         pickle.dump(config.best_words, f)
-    """
+
     print 'done!'
+
+
+def get_model():
+    with open(os.path.join(config.test_path, 'my_classifier.pkl'), 'rb') as f:
+        classifier = pickle.load(f)
+    return classifier

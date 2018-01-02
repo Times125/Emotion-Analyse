@@ -15,6 +15,7 @@ f_path = r'E:\Repositories\Emotion-Analyse\features'
 
 # 最好的特征值
 best_words = []
+
 # 单个词选择阈值
 word_scores_threshold = 10000
 # 双词搭配选择阈值
@@ -23,5 +24,3 @@ bigram_scores_threshold = 10000
 # 分割数据的阈值
 choose_threshold = 320000
 
-pos_data = pickle.load(open(os.path.join(test_path, 'pos_review.pkl'), 'rb'))
-neg_data = pickle.load(open(os.path.join(test_path, 'neg_review.pkl'), 'rb'))

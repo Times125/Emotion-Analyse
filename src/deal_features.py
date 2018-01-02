@@ -94,6 +94,8 @@ def get_best_words(scores_dict, threshold=10000):
 """
 def best_words_features(words):
     # print config.best_words
+    if config.best_words is None:
+        config.best_words = pickle.load(open(os.path.join(config.test_path, 'best_feats.pkl'), 'rb'))
     lst = []
     for word in words:
         if word in config.best_words:
@@ -111,11 +113,9 @@ def best_bigram_words_features(words, score_fn=BigramAssocMeasures.chi_sq, n=150
         bigram_finder = BigramCollocationFinder.from_words(words)
         bigrams = bigram_finder.nbest(score_fn, n)
     except ZeroDivisionError:
-        words.append('xy!z')
-        print words,"=====______"
+        words.append(' ')
         bigram_finder = BigramCollocationFinder.from_words(words)
         bigrams = bigram_finder.nbest(score_fn, n)
-        print bigrams, "===========."
     d = dict([(bigram, True) for bigram in bigrams])
     d.update(best_words_features(words))
     return d
