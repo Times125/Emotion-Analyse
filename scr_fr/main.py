@@ -19,21 +19,22 @@ def test_my(featx):
     neg_data = pickle.load(open(os.path.join(config.test_path, 'neg_reviews_mod.pkl'), 'rb'))
     nat_data = pickle.load(open(os.path.join(config.test_path, 'nat_reviews_mod.pkl'), 'rb'))
 
-    pos_len = int(len(pos_data) * 0.3)
-    neg_len = int(len(neg_data) * 0.3)
-    nat_len = int(len(nat_data) * 0.3)
+    pos_len = int(len(pos_data) * 0.2)  # 2470
+    neg_len = int(len(neg_data) * 0.15)  # 2740
+    nat_len = int(len(nat_data) * 0.1)  # 2956
     a = [pos_len, neg_len, nat_len]
     a.sort()
+    print a
     threshold = a[0]
-
-    pos_words = pos_data[threshold:]
-    neg_words = neg_data[threshold:]
-    nat_words = nat_data[threshold:]
+    print '*********', threshold
+    pos_words = pos_data[pos_len:]
+    neg_words = neg_data[neg_len:]
+    nat_words = nat_data[nat_len:]
 
     print len(pos_words), '------', len(neg_words)
     pos_features = [(featx(w_lst), 'pos') for w_lst in pos_words]
     neg_features = [(featx(w_lst), 'neg') for w_lst in neg_words]
-    nat_features = [(featx(w_lst), 'neg') for w_lst in nat_words]
+    nat_features = [(featx(w_lst), 'nat') for w_lst in nat_words]
 
     negoff = int(len(neg_features) * 0.9)
     posoff = int(len(pos_features) * 0.9)
@@ -75,7 +76,7 @@ def test_my(featx):
             pickle.dump(bernoulli_classifier, f)
             print 'bernoulli_classifier'
 
-    best_feats_pkl = os.path.join(config.test_path, 'best_feats_pkl_mod.pkl')  # 消极语料
+    best_feats_pkl = os.path.join(config.test_path, 'best_feats_pkl_mod.pkl')
     with open(best_feats_pkl, 'wb') as f:
         pickle.dump(config.best_words, f)
 
@@ -86,9 +87,11 @@ def deals_fun(cat, my_classifier, pos_words, neg_words, nat_words):
     neg_reviews = []
     pos_reviews = []
     nat_reviews = []
+    print '**************----',len(pos_words)
     if cat == 1:
         for words in pos_words:
             res = my_classifier.classify(best_bigram_words_features(words))
+            print res,'+++++++++++++='
             if res == 'pos':
                 pos_reviews.append(words)
         print 1
@@ -122,6 +125,7 @@ def train_again():
     pos_words = pos_data[:]
     neg_words = neg_data[:]
     nat_words = nat_data[:]
+    # 2801 5132 7732
     pool = Pool()
     for i in range(3):
         pool.apply_async(deals_fun, args=(i, my_classifier, pos_words, neg_words, nat_words,))
@@ -133,13 +137,6 @@ def train_again():
 if __name__ == '__main__':
     # export_data()
     word_bigram_score_dict = word_bigram_scores()
-    config.best_words = get_best_words(word_bigram_score_dict, 10000)
+    config.best_words = get_best_words(word_bigram_score_dict, 12000)
     create_classifier(best_bigram_words_features)
-    for i in range(2):
-        train_again()
-
-    """
-    scores_dict = word_scores()
-    config.best_words = get_best_words(scores_dict, 20000)
-    create_classifier(best_words_features)
-    """
+    train_again()

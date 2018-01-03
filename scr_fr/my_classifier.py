@@ -26,8 +26,8 @@ def create_classifier(featx):
     nat_data = pickle.load(open(os.path.join(config.test_path, 'nat_review.pkl'), 'rb'))
 
     pos_words = pos_data[config.choose_threshold:]
-    neg_words = neg_data[config.choose_threshold:]
-    nat_words = nat_data[config.choose_threshold:]
+    neg_words = neg_data[config.choose_threshold*2:]
+    nat_words = nat_data[config.choose_threshold*3:]
 
     print len(pos_words), '------', len(neg_words), '------', len(nat_words)
     pos_features = [(featx(w_lst), 'pos') for w_lst in pos_words]

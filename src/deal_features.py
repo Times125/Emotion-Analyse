@@ -17,7 +17,7 @@ from nltk.probability import FreqDist, ConditionalFreqDist
 __author__ = 'lch02'
 
 """
-计算每个词的贡献(信息量)
+计算每个词的贡献(信息量):unused
 """
 def word_scores():
     pos_words = list(itertools.chain(*(config.pos_data[:config.choose_threshold])))   # 二维数组转一维

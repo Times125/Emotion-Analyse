@@ -21,5 +21,5 @@ word_scores_threshold = 10000
 bigram_scores_threshold = 10000
 
 # 分割数据的阈值
-choose_threshold = 1400
+choose_threshold = 1000
 

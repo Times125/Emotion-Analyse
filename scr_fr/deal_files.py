@@ -60,6 +60,7 @@ def deal_doc(cat, fn):
                     continue
                 elif label == 1 and len(content) != 0:
                     pos.append(content)
+                    print '++++++++++++++++++ pos',content
         pos_file = os.path.join(test_path, 'pos_review.pkl')  # 积极语料
         with open(pos_file, 'wb') as f:
             pickle.dump(pos, f)
@@ -73,7 +74,7 @@ def deal_doc(cat, fn):
                     continue
                 elif label == 0 and len(content) != 0:
                     nat.append(content)
-                    print content
+                    print '++++++++++++++++++ nat', content
         nat_file = os.path.join(test_path, 'nat_review.pkl')  # 积极语料
         with open(nat_file, 'wb') as f:
             pickle.dump(nat, f)

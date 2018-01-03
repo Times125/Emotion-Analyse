@@ -10,7 +10,7 @@ from deal_files import export_data
 from deal_features import *
 from my_classifier import *
 from multiprocessing import Pool
-
+from data_filter import review_filter
 __author__ = 'lch02'
 
 
@@ -48,15 +48,15 @@ def test_my(featx):
     bernoulli_classifier = SklearnClassifier(BernoulliNB()).train(train_set)
     print "BernoulliNB accuracy is %.7f" % nltk.classify.accuracy(bernoulli_classifier, test_set)
 
-    classifier_pkl = os.path.join(config.test_path, 'my_classifier_mod.pkl')  # 消极语料
+    classifier_pkl = os.path.join(config.test_path, 'my_classifier_mod.pkl')
     with open(classifier_pkl, 'wb') as f:
         pickle.dump(bernoulli_classifier, f)
 
-    nb_classifier_pkl = os.path.join(config.test_path, 'my_nb_classifier_mod.pkl')  # 消极语料
+    nb_classifier_pkl = os.path.join(config.test_path, 'my_nb_classifier_mod.pkl')
     with open(nb_classifier_pkl, 'wb') as f:
         pickle.dump(nb_classifier, f)
 
-    best_feats_pkl = os.path.join(config.test_path, 'best_feats_pkl_mod.pkl')  # 消极语料
+    best_feats_pkl = os.path.join(config.test_path, 'best_feats_pkl_mod.pkl')
     with open(best_feats_pkl, 'wb') as f:
         pickle.dump(config.best_words, f)
 
@@ -101,10 +101,11 @@ def train_again():
 
 if __name__ == '__main__':
     # export_data()
+    review_filter()
     word_bigram_score_dict = word_bigram_scores()
     config.best_words = get_best_words(word_bigram_score_dict, 5000)
     create_classifier(best_bigram_words_features)
-    train_again()
+    # train_again()
 
     """
     scores_dict = word_scores()

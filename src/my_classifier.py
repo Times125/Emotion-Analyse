@@ -24,6 +24,11 @@ def create_classifier(featx):
     pos_data = pickle.load(open(os.path.join(config.test_path, 'pos_review.pkl'), 'rb'))
     neg_data = pickle.load(open(os.path.join(config.test_path, 'neg_review.pkl'), 'rb'))
 
+    pos_dataun = pickle.load(open(os.path.join(config.test_path, 'pos_reviews.pkl'), 'rb'))
+    neg_dataun = pickle.load(open(os.path.join(config.test_path, 'neg_reviews.pkl'), 'rb'))
+    pposun = pos_dataun[config.choose_threshold:]
+    pnegun = neg_dataun[config.choose_threshold:]
+
     pos_words = pos_data[config.choose_threshold:]
     neg_words = neg_data[config.choose_threshold:]
 
@@ -33,6 +38,9 @@ def create_classifier(featx):
 
     negoff = int(len(neg_features) * 0.9)
     posoff = int(len(pos_features) * 0.9)
+
+    aposun = pos_dataun[:posoff]
+    anegun = neg_dataun[:negoff]
 
     r_pos_cut = pos_features[:posoff]
     r_neg_cut = neg_features[:negoff]
@@ -61,11 +69,20 @@ def create_classifier(featx):
     bernoulli_classifier = SklearnClassifier(BernoulliNB()).train(train_set)
     print "BernoulliNB accuracy is %.7f" % nltk.classify.accuracy(bernoulli_classifier, test_set)
 
-    classifier_pkl = os.path.join(config.test_path, 'my_classifier.pkl')  # 消极语料
+    with open(os.path.join(config.test_path, 'train_data.pkl'), 'wb') as f:
+        pposun.extend(pnegun)
+        pickle.dump(pposun, f)
+        print 'better neg_reviews done!'
+    with open(os.path.join(config.test_path, 'test_data.pkl'), 'wb') as f:
+        aposun.extend(anegun)
+        pickle.dump(aposun, f)
+        print 'better neg_reviews_lst done!'
+
+    classifier_pkl = os.path.join(config.test_path, 'my_classifier.pkl')
     with open(classifier_pkl, 'wb') as f:
         pickle.dump(nb_classifier, f)
 
-    best_feats_pkl = os.path.join(config.test_path, 'best_feats.pkl')  # 消极语料
+    best_feats_pkl = os.path.join(config.test_path, 'best_feats.pkl')
     with open(best_feats_pkl, 'wb') as f:
         pickle.dump(config.best_words, f)
 
