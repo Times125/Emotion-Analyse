@@ -16,35 +16,9 @@ from config import test_path
 from nltk.probability import FreqDist, ConditionalFreqDist
 __author__ = 'lch02'
 
-"""
-计算每个词的贡献(信息量):unused
-"""
-def word_scores():
-    pos_words = list(itertools.chain(*(config.pos_data[:config.choose_threshold])))   # 二维数组转一维
-    neg_words = list(itertools.chain(*(config.neg_data[:config.choose_threshold])))
-
-    word_tf = FreqDist()    # 统计所有词频
-    con_word_tf = ConditionalFreqDist()     # 统计每个词的概率分布
-
-    for word in pos_words:
-        word_tf[word] += 1
-        con_word_tf['pos'][word] += 1
-    for word in neg_words:
-        word_tf[word] += 1
-        con_word_tf['neg'][word] += 1
-    pos_word_count = con_word_tf['pos'].N()     # 积极词的数量
-    neg_word_count = con_word_tf['neg'].N()     # 消极词的数量
-    total_word_count = pos_word_count + neg_word_count      # 总词
-    word_scores_dict = {}
-    for word, freq in word_tf.iteritems():
-        pos_score = BigramAssocMeasures.chi_sq(con_word_tf['pos'][word], (freq, pos_word_count), total_word_count)   # 计算积极词的卡方统计量
-        neg_score = BigramAssocMeasures.chi_sq(con_word_tf['neg'][word], (freq, neg_word_count), total_word_count)   # 计算消极词的卡方统计量
-        word_scores_dict[word] = pos_score + neg_score
-    print pos_score, '----', neg_score
-    return word_scores_dict
 
 """
-计算单个词和双词搭配的贡献（信息量）,备用
+计算单个词和双词搭配的贡献（信息量
 """
 def word_bigram_scores():
     pos_data = pickle.load(open(os.path.join(test_path, 'pos_review.pkl'), 'rb'))
@@ -93,7 +67,6 @@ def get_best_words(scores_dict, threshold=10000):
 选择1：最有信息量的单个词作为特征
 """
 def best_words_features(words):
-    # print config.best_words
     if config.best_words is None:
         config.best_words = pickle.load(open(os.path.join(config.test_path, 'best_feats.pkl'), 'rb'))
     lst = []
@@ -103,7 +76,6 @@ def best_words_features(words):
         else:
             lst.append((word, False))
     return dict(lst)
-    # return dict([(word, True) for word in words if word in config.best_words])
 
 """
 选择2：把所有词和双词搭配一起作为特征

@@ -10,7 +10,10 @@ from deal_files import export_data
 from deal_features import *
 from my_classifier import *
 from multiprocessing import Pool
+from openpyxl import load_workbook
+from deal_files import text_parse
 from data_filter import review_filter
+
 __author__ = 'lch02'
 
 
@@ -85,6 +88,7 @@ def deals_fun(cat, my_classifier, pos_words, neg_words):
             pickle.dump(neg_reviews, f)
             print 'mod neg_reviews done!'
 
+
 def train_again():
     my_classifier = get_model()
     pos_data = pickle.load(open(os.path.join(config.test_path, 'pos_review.pkl'), 'rb'))
@@ -99,16 +103,45 @@ def train_again():
     test_my(best_bigram_words_features)
 
 
+def test_classifier():
+    file_name = os.path.join(test_path, 'testdata.xlsx')
+    wb = load_workbook(file_name, read_only=True)
+    ws = wb.active
+    neg = []
+    pos = []
+    for row in ws.iter_rows('A:B'):
+        label = row[0].value
+        content = row[1].value
+        if content is not None:
+            content = text_parse(content)
+            if len(content) == 0:
+                continue
+            elif label == 0 and len(content) != 0:
+                neg.append((content, 0))
+            elif label == 4 and len(content) != 0:
+                pos.append((content, 4))
+    pos.extend(neg)
+    test = pos
+    sum = len(test)
+    print len(neg), '----', sum
+    corrected = 0.0
+    classifier = get_model()
+    print 'model loaded!'
+    for words, label in test:
+        f_dict = best_bigram_words_features(words)
+        cl = classifier.classify(f_dict)
+        if label == 0 and cl == 'neg':
+            corrected += 1
+        elif label == 4 and cl == 'pos':
+            corrected += 1
+    print 'accuracy is %.7f' % (corrected / sum)
+
+
 if __name__ == '__main__':
-    # export_data()
-    review_filter()
+
+    export_data()
+    #review_filter()
     word_bigram_score_dict = word_bigram_scores()
     config.best_words = get_best_words(word_bigram_score_dict, 5000)
     create_classifier(best_bigram_words_features)
-    # train_again()
-
-    """
-    scores_dict = word_scores()
-    config.best_words = get_best_words(scores_dict, 20000)
-    create_classifier(best_words_features)
-    """
+    test_classifier()
