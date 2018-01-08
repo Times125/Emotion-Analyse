@@ -9,7 +9,8 @@
 import config
 import os
 import nltk
-import pickle
+import cPickle as pickle
+# import pickle
 
 from nltk.classify import SklearnClassifier
 from sklearn.svm import LinearSVC
@@ -78,11 +79,11 @@ def create_classifier(featx):
     """
     nb_classifier = nltk.NaiveBayesClassifier.train(train_set)
     nba = nltk.classify.accuracy(nb_classifier, test_set)
-    print "NBayes accuracy is %.7f" % nba  # 86.78%
+    print "NBayes accuracy is %.7f" % nba  # 0.93993803
 
     svm_classifier = SklearnClassifier(LinearSVC()).train(train_set)
     svmm = nltk.classify.accuracy(svm_classifier, test_set)
-    print "svm_classifier accuracy is %.7f" % svmm  # 89.124%
+    print "svm_classifier accuracy is %.7f" % svmm  # 90.498
 
     """
     保存准确率更大的那个模型
@@ -95,17 +96,14 @@ def create_classifier(featx):
         else:
             pickle.dump(svm_classifier, f)
             print 'SVM'
-
-    print 'done!'
-
-    best_feats_pkl = os.path.join(config.test_path, 'best_feats.pkl')
-    with open(best_feats_pkl, 'wb') as f:
-        pickle.dump(config.best_words, f)
-
+    classifier_pkl_1 = os.path.join(config.test_path, 'my_classifier_svm.pkl')
+    with open(classifier_pkl_1, 'wb') as f:
+        pickle.dump(svm_classifier, f)
+        print 'SVM'
     print 'done!'
 
 
 def get_model():
-    with open(os.path.join(config.test_path, 'my_classifier.pkl'), 'rb') as f:
+    with open(os.path.join(config.test_path, 'my_classifier_svm.pkl'), 'rb') as f:
         classifier = pickle.load(f)
     return classifier

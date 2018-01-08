@@ -6,6 +6,9 @@
 @Time:  2017/12/25 14:32
 @Description: 
 """
+import json
+import socket
+
 from deal_files import export_data
 from deal_features import *
 from my_classifier import *
@@ -16,7 +19,7 @@ from data_filter import review_filter
 
 __author__ = 'lch02'
 
-
+"""
 def test_my(featx):
     pos_data = pickle.load(open(os.path.join(config.test_path, 'pos_reviews_mod.pkl'), 'rb'))
     neg_data = pickle.load(open(os.path.join(config.test_path, 'neg_reviews_mod.pkl'), 'rb'))
@@ -48,7 +51,7 @@ def test_my(featx):
     nb_classifier = nltk.NaiveBayesClassifier.train(train_set)
     print "NBayes accuracy is %.7f" % nltk.classify.accuracy(nb_classifier, test_set)
 
-    bernoulli_classifier = SklearnClassifier(BernoulliNB()).train(train_set)
+    bernoulli_classifier = SklearnClassifier(LinearSVC()).train(train_set)
     print "BernoulliNB accuracy is %.7f" % nltk.classify.accuracy(bernoulli_classifier, test_set)
 
     classifier_pkl = os.path.join(config.test_path, 'my_classifier_mod.pkl')
@@ -101,7 +104,7 @@ def train_again():
     pool.close()
     pool.join()
     test_my(best_bigram_words_features)
-
+"""
 
 def test_classifier():
     file_name = os.path.join(test_path, 'testdata.xlsx')
@@ -136,12 +139,50 @@ def test_classifier():
             corrected += 1
     print 'accuracy is %.7f' % (corrected / sum)
 
+def main():
+    classifier = get_model()
+    print 'load success!'
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(('127.0.0.1', 7004))
+    s.listen(10)
+    while True:
+        try:
+            sock, addr = s.accept()
+            data = sock.recv(102400)
+            data = data.decode('utf-8').encode('utf-8')
+            if data is 'auto':
+                if len(config.best_words) == 0:
+                    config.best_words = pickle.load(open(os.path.join(config.test_path, 'best_feats.pkl'), 'rb'))
+                create_classifier(best_bigram_words_features)
+                sock.send("complete auto!")
+                sock.close()
+                continue
+            deal = best_words_features(text_parse(data))
+            res = classifier.classify(deal)
+            if res == 'pos':
+                p = 1.0
+            else:
+                p = 0.0
+            res_json = json.dumps(p).encode('utf-8')
+            sock.send(res_json)
+            sock.close()
+        except KeyboardInterrupt:
+            print 'Exit'
+            exit()
+        except:
+            print 'Error'
 
 if __name__ == '__main__':
 
-    export_data()
-    #review_filter()
+    # main()
+    # export_data()
+    # review_filter()
+    """
     word_bigram_score_dict = word_bigram_scores()
     config.best_words = get_best_words(word_bigram_score_dict, 5000)
+    best_feats_pkl = os.path.join(config.test_path, 'best_feats.pkl')
+    with open(best_feats_pkl, 'wb') as f:
+        pickle.dump(config.best_words, f)
     create_classifier(best_bigram_words_features)
-    test_classifier()
+    """
+    test_classifier() # NB 0.8189415 # SVM
