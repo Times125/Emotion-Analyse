@@ -4,7 +4,7 @@
 """
 @Author:lch02
 @Time:  2018/1/3 13:08
-@Description: 
+@Description: 利用训练好的分类器重新筛选原始语料，然后利用原始语料重新训练
 """
 
 import os
