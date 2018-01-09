@@ -104,6 +104,6 @@ def create_classifier(featx):
 
 
 def get_model():
-    with open(os.path.join(config.test_path, 'my_classifier_svm.pkl'), 'rb') as f:
+    with open(os.path.join(config.test_path, 'my_classifier.pkl'), 'rb') as f:
         classifier = pickle.load(f)
     return classifier

@@ -174,7 +174,7 @@ def main():
 
 if __name__ == '__main__':
 
-    # main()
+    main()
     # export_data()
     # review_filter()
     """
@@ -185,4 +185,4 @@ if __name__ == '__main__':
         pickle.dump(config.best_words, f)
     create_classifier(best_bigram_words_features)
     """
-    test_classifier() # NB 0.8189415 # SVM 0.5961003
+    # test_classifier() # NB 0.8189415 # SVM 0.5961003
