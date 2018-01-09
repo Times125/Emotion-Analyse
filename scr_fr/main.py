@@ -137,6 +137,6 @@ def train_again():
 if __name__ == '__main__':
     # export_data()
     word_bigram_score_dict = word_bigram_scores()
-    config.best_words = get_best_words(word_bigram_score_dict, 12000)
+    config.best_words = get_best_words(word_bigram_score_dict, 10000)
     create_classifier(best_bigram_words_features)
-    train_again()
+    # train_again()

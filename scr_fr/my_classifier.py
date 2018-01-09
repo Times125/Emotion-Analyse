@@ -11,10 +11,10 @@ import os
 import itertools
 import nltk
 import pickle
-
+import collections
 from nltk.classify import SklearnClassifier
-from sklearn.naive_bayes import BernoulliNB
-from sklearn.svm import SVC
+from nltk.metrics import *
+from sklearn.svm import LinearSVC
 
 __author__ = 'lch02'
 
@@ -66,14 +66,46 @@ def create_classifier(featx):
     print train_set is None, '---train_set----', len(train_set)
     print test_set is None, '-----test_set--', len(test_set)
 
+    refsets = collections.defaultdict(set)
+    testsets = collections.defaultdict(set)
+
     nb_classifier = nltk.NaiveBayesClassifier.train(train_set)
     nba = nltk.classify.accuracy(nb_classifier, test_set)
-    print "NBayes accuracy is %.7f" % nba
+    for i, (feats, label) in enumerate(test_set):
+        refsets[label].add(i)
+        observed = nb_classifier.classify(feats)
+        testsets[observed].add(i)
+    print "NBayes accuracy is %.7f" % nba # 0.5325077
+    print "NBayes pos precision is ：", precision(refsets['pos'], testsets['pos']) # 0.33064516129
+    print "NBayes neg precision is ：", precision(refsets['neg'], testsets['neg']) # 0.580487804878
+    print "NBayes nat precision is ：", precision(refsets['nat'], testsets['nat']) # 0.698979591837
+    print "NBayes pos recall is :", recall(refsets['pos'], testsets['pos'])  # 0.67955801105
+    print "NBayes neg recall is :", recall(refsets['neg'], testsets['neg'])  # 0.37898089172
+    print "NBayes nat recall is :", recall(refsets['nat'], testsets['nat'])  # 0.57805907173
 
-    bernoulli_classifier = SklearnClassifier(BernoulliNB()).train(train_set)
-    bnla = nltk.classify.accuracy(bernoulli_classifier, test_set)
-    print "BernoulliNB accuracy is %.7f" % bnla
+    refsets = collections.defaultdict(set)
+    testsets = collections.defaultdict(set)
+    svm_classifier = SklearnClassifier(LinearSVC()).train(train_set)
+    for i, (feats, label) in enumerate(test_set):
+        refsets[label].add(i)
+        observed = svm_classifier.classify(feats)
+        testsets[observed].add(i)
+    svmm = nltk.classify.accuracy(svm_classifier, test_set)
+    print "SVM accuracy is %.7f" % svmm  # 0.6594427
+    print "SVM pos precision is ：", precision(refsets['pos'], testsets['pos'])  # 0.753846153846
+    print "SVM neg precision is ：", precision(refsets['neg'], testsets['neg'])  # 0.648648648649
+    print "SVM nat precision is ：", precision(refsets['nat'], testsets['nat'])  # 0.643435980551
+    print "SVM pos recall is :", recall(refsets['pos'], testsets['pos'])  # 0.541436464088
+    print "SVM neg recall is :", recall(refsets['neg'], testsets['neg'])  # 0.458598726115
+    print "SVM nat recall is :", recall(refsets['nat'], testsets['nat'])  # 0.837552742616
 
+    maxent_classifier = nltk.classify.MaxentClassifier.train(train_set, max_iter=10)
+    maxent = nltk.classify.accuracy(maxent_classifier, test_set)
+    print "MaxentClassifier accuracy is %.7f" % maxent
+
+
+
+    """
     classifier_pkl = os.path.join(config.test_path, 'my_classifier.pkl')  # 消极语料
     with open(classifier_pkl, 'wb') as f:
         if nba > bnla:
@@ -84,7 +116,7 @@ def create_classifier(featx):
     best_feats_pkl = os.path.join(config.test_path, 'best_feats.pkl')  # 消极语料
     with open(best_feats_pkl, 'wb') as f:
         pickle.dump(config.best_words, f)
-
+    """
     print 'done!'
 
 
