@@ -6,7 +6,7 @@
 @Time:  2017/12/25 14:47
 @Description: 
 """
-import pickle
+
 import os
 __author__ = 'lch02'
 

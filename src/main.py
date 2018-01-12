@@ -9,12 +9,10 @@
 import json
 import socket
 
-from deal_files import export_data
 from deal_features import *
 from my_classifier import *
 from openpyxl import load_workbook
 from deal_files import text_parse
-from data_filter import review_filter
 
 __author__ = 'lch02'
 
@@ -55,20 +53,13 @@ def main():
     classifier = get_model()
     print 'load success!'
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(('127.0.0.1', 7004))
+    s.bind(('127.0.0.1', 7005))
     s.listen(10)
     while True:
         try:
             sock, addr = s.accept()
             data = sock.recv(102400)
             data = data.decode('utf-8').encode('utf-8')
-            if data is 'auto':
-                if len(config.best_words) == 0:
-                    config.best_words = pickle.load(open(os.path.join(config.test_path, 'best_feats.pkl'), 'rb'))
-                create_classifier(best_bigram_words_features)
-                sock.send("complete auto!")
-                sock.close()
-                continue
             deal = best_words_features(text_parse(data))
             res = classifier.classify(deal)
             if res == 'pos':
@@ -89,8 +80,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # export_data()
-    # review_filter()
     """
     word_bigram_score_dict = word_bigram_scores()
     config.best_words = get_best_words(word_bigram_score_dict, 5000)
@@ -98,5 +87,5 @@ if __name__ == '__main__':
     with open(best_feats_pkl, 'wb') as f:
         pickle.dump(config.best_words, f)
     create_classifier(best_bigram_words_features)
+    test_classifier()
     """
-    # test_classifier()  # NB 0.8189415 # SVM 0.5961003
